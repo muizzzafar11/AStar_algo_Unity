@@ -4,9 +4,11 @@ using UnityEngine;
 
 public class Node 
 {
-    public int gridX, gridY;
-    public bool IsWall;
-    public Vector3 Position;
-    public Node Parent;
+    public bool walkable;//is there a wall or not
+    public Vector3 worldposition;//what is the posi5tion on the grid
 
+    public Node(bool _walkable, Vector3 _worldPos) {
+        walkable = _walkable;
+        worldposition = _worldPos;
+    }
 }
