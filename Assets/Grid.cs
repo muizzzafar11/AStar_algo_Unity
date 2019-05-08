@@ -8,8 +8,8 @@ using UnityEngine;
 public class Grid : MonoBehaviour
 {
     public LayerMask unwalkableMask;
-    public Vector2 gridWorldSize;//size of the grid
-    public float nodeRadius;//size of each node
+    public Vector2 gridWorldSize;//size of the grid, the area the grid is going to cover
+    public float nodeRadius;//size of each node, each box of the grid
     Node[,] grid;
      float nodeDiameter;//diameter of the node
     int gridSizeX, gridSizeY;//for calculating how many nodes we can fit onto each side
@@ -35,7 +35,13 @@ public class Grid : MonoBehaviour
                 //world point is defining a square//i think not sure 
                 Vector3 worldPoint = WorldBottomLeft + Vector3.right * (x * nodeDiameter + nodeRadius) +
                     Vector3.forward * (y * nodeDiameter + nodeRadius);
-
+                //collision check for the points
+                //bool is true of we dont collide with anything in the unwalkable mask
+                //physics.checksphere returns true if there is a collision
+                //if there is collision and it returns the value to be true, then make walkable false
+                bool walkable = !(Physics.CheckSphere(worldPoint, nodeRadius,unwalkableMask));
+                //assigning values to the constructor of Node class
+                grid[x, y] = new Node(walkable, worldPoint);
                     
             }
         }
@@ -45,5 +51,17 @@ public class Grid : MonoBehaviour
     {
         //the reason we have y is beacuse in y axis view our y arrow of the cude(Gizmo) represents the z axis
         Gizmos.DrawWireCube(transform.position, new Vector3(gridWorldSize.x, 1, gridWorldSize.y));
+        //if there is a grid
+        if (grid != null) {
+            //go through all the nodes in the grid
+            foreach (Node n in grid) {
+                //if there os no collision then draw the cube white and if there is a collision then draw it red
+                //? means then (//pro if statement tool)
+                //: means or set it to this (//also a pro if tool)
+                Gizmos.color = (n.walkable) ? Color.white : Color.red;
+               // Draw a Gizmos cube 
+                Gizmos.DrawCube(n.worldposition, Vector3.one * (nodeDiameter - .1f));
+            }
+        }
     }
 }
