@@ -1,12 +1,15 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-/*transform.position gives u the center of the world, aka the center position as a reference point to start with.
+/*
+ * transform.position gives u the center of the world, aka the center position as a reference point to start with.
  *vector3.right means new Vector(1,0,0); this means that vector 3.right is just a fancy way of writing that vector 
+ * 
  */
 
 public class Grid : MonoBehaviour
 {
+    public Transform player;
     public LayerMask unwalkableMask;
     public Vector2 gridWorldSize;//size of the grid, the area the grid is going to cover
     public float nodeRadius;//size of each node, each box of the grid
@@ -23,7 +26,7 @@ public class Grid : MonoBehaviour
         CreateGrid();
     }
     void CreateGrid() {
-        grid = new Node[gridSizeX, gridSizeY];//
+        grid = new Node[gridSizeX, gridSizeY];//Node array with gridx and gridy as sizes 
         //transform.position - Vector3.right * gridWorldSize.x / 2------>gives the left edge of the world
         //Vector3.forward ----------> gives the z axis in 3D space  
         // - Vector3.forward * gridWorldSize.y/2 ----------> gives us the bottom left corner of the world when added with the statement above
@@ -32,11 +35,11 @@ public class Grid : MonoBehaviour
         for (int x = 0; x < gridSizeX; x++) {
             for (int y = 0; y < gridSizeY; y++)
             {
-                //world point is defining a square//i think not sure 
+                //world point is defining a square
                 Vector3 worldPoint = WorldBottomLeft + Vector3.right * (x * nodeDiameter + nodeRadius) +
                     Vector3.forward * (y * nodeDiameter + nodeRadius);
                 //collision check for the points
-                //bool is true of we dont collide with anything in the unwalkable mask
+                //bool is true if we dont collide with anything in the unwalkable mask
                 //physics.checksphere returns true if there is a collision
                 //if there is collision and it returns the value to be true, then make walkable false
                 bool walkable = !(Physics.CheckSphere(worldPoint, nodeRadius,unwalkableMask));
@@ -46,20 +49,50 @@ public class Grid : MonoBehaviour
             }
         }
     }
+    //for the position of the player
+    public Node NodeFromWorldPoint(Vector3 worldPosition) {
+        //left 0
+        //middle 0.5
+        //right 1
+        //same for the y axis bottom 0 and so onwards 
+        float percentX = (worldPosition.x + gridWorldSize.x / 2) / gridWorldSize.x;
+        float percentY = (worldPosition.z + gridWorldSize.y / 2) / gridWorldSize.y;
+        //so that it alwas remains between 0 and 1
+        //spo that if the person is outside the world it doesnt give us error
+        percentX = Mathf.Clamp01(percentX);
+        percentY = Mathf.Clamp01(percentY);
+        //-1 so that were not outside of the int array
+        //setting the size of the array 
+        int x = Mathf.RoundToInt((gridSizeX - 1) * percentX);
+        int y = Mathf.RoundToInt((gridSizeY - 1) * percentY);
+        //to return the size of the node 
+      
+        
+        return grid[x,y];
 
+    }
+    //for drawing a cube on the grid, world
     private void OnDrawGizmos()
     {
         //the reason we have y is beacuse in y axis view our y arrow of the cude(Gizmo) represents the z axis
         Gizmos.DrawWireCube(transform.position, new Vector3(gridWorldSize.x, 1, gridWorldSize.y));
         //if there is a grid
         if (grid != null) {
+
+            //Node playerNode = NodeFromWorldPoint(player.position);
+
             //go through all the nodes in the grid
             foreach (Node n in grid) {
                 //if there os no collision then draw the cube white and if there is a collision then draw it red
                 //? means then (//pro if statement tool)
                 //: means or set it to this (//also a pro if tool)
                 Gizmos.color = (n.walkable) ? Color.white : Color.red;
-               // Draw a Gizmos cube 
+               /* if (playerNode == n)
+                {
+                    Gizmos.color = Color.cyan;
+                }
+                */
+                // Draw a Gizmos cube 
                 Gizmos.DrawCube(n.worldposition, Vector3.one * (nodeDiameter - .1f));
             }
         }
