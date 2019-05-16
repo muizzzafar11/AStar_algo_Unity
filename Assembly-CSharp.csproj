@@ -62,6 +62,7 @@
   <ItemGroup>
     <Compile Include="Assets\Grid.cs" />
     <Compile Include="Assets\Node.cs" />
+    <Compile Include="Assets\PathFinding.cs" />
     <Reference Include="Unity.TextMeshPro.Editor">
       <HintPath>C:/Users/Muizz Zafar/Documents/A star Pathfinding/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
     </Reference>

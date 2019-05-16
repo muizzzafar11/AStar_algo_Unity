@@ -44,11 +44,44 @@ public class Grid : MonoBehaviour
                 //if there is collision and it returns the value to be true, then make walkable false
                 bool walkable = !(Physics.CheckSphere(worldPoint, nodeRadius,unwalkableMask));
                 //assigning values to the constructor of Node class
-                grid[x, y] = new Node(walkable, worldPoint);
+                grid[x, y] = new Node(walkable, worldPoint,x,y);
                     
             }
         }
     }
+
+    //No idea of whats going on in this method 
+    //try to understand it first before moving forward to the next steps
+    //not using array bcz we dont know how many nodes are going to surround that node 
+    //
+    //where is this node on our grid for that we can ediyt the constructor of the ndoe class and let it keep track of the main node
+    //qith the x and y ints in the constructor 
+    public List<Node> GetNeighbours (Node node) {
+        //creating a list of nodes for the neighbours
+        List<Node> neighbours = new List<Node>();
+        //the loop searches in a 3 X 3 block 
+        //when x and y both = 0, then we r in the enter of the block 
+        for (int x = -1; x <= 1; x++)
+        {
+            for (int y = -1; y <= 1; y++)
+            {
+                //for skipping the center t=noed, because that node was already given to us '
+                if (x == 0 && y == 0) {
+                    continue;
+                }
+                int checkX = node.gridX + x;
+                int checkY = node.gridY + y;
+                //checking if the node is actually iside the grid or not 
+                //gridSizeX is the size of our array
+                if (checkX >= 0 && checkX < gridSizeX && checkY >= 0 && checkY < gridSizeY)
+                {
+                    neighbours.Add(grid[checkX, checkY]);
+                }
+            }
+        }
+        return neighbours;
+    }
+
     //for the position of the player
     public Node NodeFromWorldPoint(Vector3 worldPosition) {
         //left 0
@@ -71,6 +104,9 @@ public class Grid : MonoBehaviour
         return grid[x,y];
 
     }
+
+    public List<Node> path;
+
     //for drawing a cube on the grid, world
     private void OnDrawGizmos()
     {
@@ -87,10 +123,16 @@ public class Grid : MonoBehaviour
                 //? means then (//pro if statement tool)
                 //: means or set it to this (//also a pro if tool)
                 Gizmos.color = (n.walkable) ? Color.white : Color.red;
-               /* if (playerNode == n)
+                if (path != null) {
+                    if (path.Contains(n))
+                        Gizmos.color = Color.black;
+                }
+                
+                /* if (playerNode == n)
                 {
                     Gizmos.color = Color.cyan;
                 }
+                
                 */
                 // Draw a Gizmos cube 
                 Gizmos.DrawCube(n.worldposition, Vector3.one * (nodeDiameter - .1f));
